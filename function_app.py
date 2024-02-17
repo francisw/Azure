@@ -1,5 +1,6 @@
 import azure.functions as func
 import logging
+import time
 
 app = func.FunctionApp()
 
@@ -18,10 +19,10 @@ def test_function(req: func.HttpRequest, msg: func.Out[func.QueueMessage],
         except ValueError:
             pass
         else:
-            name = req_body.get('name')
+            name = req_body.get('name') or str(time.time())
 
      if name:
-        outputDocument.set(func.Document.from_dict({"id": name}))
+        outputDocument.set(func.Document.from_dict({"id": name, "request": req_body}))
         msg.set(name)
         return func.HttpResponse(f"Hello {name}!")
      else:
@@ -29,3 +30,5 @@ def test_function(req: func.HttpRequest, msg: func.Out[func.QueueMessage],
                     "Please pass a name on the query string or in the request body",
                     status_code=400
                 )
+     
+
